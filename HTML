@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام نقاط النادي</title>
+<style>
+body {
+  font-family: system-ui, "Noto Naskh Arabic", sans-serif;
+  background: #f6f8fc;
+  margin: 0;
+  padding: 20px;
+  direction: rtl;
+  color: #222;
+}
+h1 { text-align: center; }
+.container {
+  max-width: 600px;
+  margin: auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.member {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+button {
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+button:disabled { background: gray; }
+#tasks div {
+  padding: 5px;
+  margin: 5px 0;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+.hidden { display: none; }
+</style>
+</head>
+<body>
+<h1 id="title">📊 نقاط النادي</h1>
+
+<div class="container">
+  <h3>الترتيب العام:</h3>
+  <div id="members"></div>
+
+  <div id="tasks">
+    <h3>المهام</h3>
+  </div>
+</div>
+
+<script>
+/* ==== بيانات تجريبية (بدون Firebase) ==== */
+let members = [
+  {name: "أحمد", points: 5},
+  {name: "سلمان", points: 3},
+  {name: "ليلى", points: 7}
+];
+
+let tasks = [
+  {title: "مهام الأسبوع 1", points: 2},
+  {title: "مهام الأسبوع 2", points: 3}
+];
+
+/* ==== حالة المشرف ==== */
+let isAdmin = false;
+
+/* ==== عرض الأعضاء ==== */
+function renderMembers(){
+  const div = document.getElementById("members");
+  div.innerHTML = "";
+  members.sort((a,b)=> b.points - a.points);
+  members.forEach((m,i)=>{
+    const row = document.createElement("div");
+    row.className = "member";
+    row.innerHTML = `<div><b>${i+1}.</b> ${m.name}</div>
+                     <div>${m.points} نقطة${isAdmin ? ' <button onclick="addPoints('+i+')">+</button>':''}</div>`;
+    div.appendChild(row);
+  });
+}
+
+/* ==== إضافة نقاط للمشرف ==== */
+function addPoints(index){
+  const p = prompt("كم نقطة تريد إضافتها؟","1");
+  if(!p) return;
+  members[index].points += Number(p);
+  renderMembers();
+}
+
+/* ==== عرض المهام ==== */
+function renderTasks(){
+  const div = document.getElementById("tasks");
+  div.innerHTML = "<h3>المهام</h3>";
+  tasks.forEach((t,i)=>{
+    const taskDiv = document.createElement("div");
+    taskDiv.textContent = `${t.title} — ${t.points} نقطة`;
+    div.appendChild(taskDiv);
+  });
+  if(isAdmin){
+    const btn = document.createElement("button");
+    btn.textContent = "إضافة مهمة";
+    btn.onclick = addTask;
+    div.appendChild(btn);
+  }
+}
+
+/* ==== إضافة مهمة جديدة ==== */
+function addTask(){
+  const title = prompt("اسم المهمة:");
+  const points = prompt("كم نقطة للمهمة؟","1");
+  if(!title || !points) return;
+  tasks.push({title, points: Number(points)});
+  renderTasks();
+}
+
+/* ==== زر مخفي لتفعيل وضع المشرف ==== */
+document.getElementById("title").ondblclick = ()=>{
+  isAdmin = true;
+  alert("تم تفعيل وضع المشرف ✅");
+  renderMembers();
+  renderTasks();
+}
+
+/* ==== بدء الموقع ==== */
+renderMembers();
+renderTasks();
+</script>
+</body>
+</html>
